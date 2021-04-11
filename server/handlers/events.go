@@ -42,3 +42,42 @@ func PostEvent(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
+
+func GetEvents(c *fiber.Ctx) error {
+	// Get paging param (common)
+	pagingOpts, err := GetPagingParam(c)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid paging param")
+	}
+
+	//  Get range param
+	from, err := GetQueryParamDate(c, "from")
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid from")
+	}
+
+	to, err := GetQueryParamDate(c, "to")
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid to")
+	}
+
+	searchResult, err := dbStore.SearchEventByTimeRange(&store.SearchEventOptions{
+		AgentcyID:  GetAgencyIDFromCtx(c),
+		From:       from,
+		To:         to,
+		PagingOpts: pagingOpts,
+	})
+	if err != nil {
+		logrus.Error("Search events failed", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Search events failed")
+	}
+
+	pp.Println("events:", searchResult)
+	reponseModel := views.GetEventResponseFromStoreResponse(searchResult)
+
+	if err := MarshalThenSend(c, reponseModel); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, "Error when sending response")
+	}
+
+	return nil
+}

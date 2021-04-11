@@ -2,7 +2,7 @@
 
 .PHONY: dev
 dev:
-	DB_CONNECTION_STRING="cfsdev:cfsdev@/cfsservice" \
+	DB_CONNECTION_STRING="cfsdev:cfsdev@/cfsservice?parseTime=true" \
 	go run cmd/main.go
 
 reset-db-dev:

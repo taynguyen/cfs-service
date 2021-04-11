@@ -5,7 +5,6 @@ import (
 	"log"
 
 	fiber "github.com/gofiber/fiber/v2"
-	"github.com/k0kubun/pp"
 	"gitlab.com/cfs-service/server/handlers"
 	"gitlab.com/cfs-service/store"
 )
@@ -16,25 +15,20 @@ func Start(port uint64, s store.IStore) error {
 
 	app := fiber.New()
 
+	// app.Handler("/healthz")
+
 	// Authorization
 	app.Use(func(c *fiber.Ctx) error {
-		fmt.Println("🥇 First handler")
-		c.Context().SetUserValue("my-name", "Tay Nguyen")
+		c.Context().SetUserValue("agency_id", "4f9b99eb-490a-484e-bade-15e3841dfda9")
 		return c.Next()
 	})
 
 	apiV1 := app.Group("/api/v1")
 
-	// GET /john
-	apiV1.Get("/:name", func(c *fiber.Ctx) error {
-		msg := fmt.Sprintf("Hello, %s 👋!", c.Params("name"))
-		val := c.Context().UserValue("my-name")
-		pp.Println("val:", val)
-		return c.SendString(msg) // => Hello john 👋!
-	})
-
 	// POST event
 	apiV1.Post("/events", handlers.PostEvent)
+
+	apiV1.Get("/events", handlers.GetEvents)
 
 	log.Fatal(app.Listen(fmt.Sprintf(":%d", port)))
 

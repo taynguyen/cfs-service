@@ -17,3 +17,7 @@ const dateTimeLayout = "2006-01-02 15:04:05.000"
 func StringToTime(str string) (time.Time, error) {
 	return time.Parse(dateTimeLayout, str)
 }
+
+func FormatTimeToLongTring(t time.Time) string {
+	return t.Format(dateTimeLayout)
+}

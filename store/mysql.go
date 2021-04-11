@@ -4,10 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"fmt"
 	"time"
 
 	"github.com/Boostport/migration"
 	"github.com/Boostport/migration/driver/mysql"
+	"github.com/k0kubun/pp"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -71,4 +73,68 @@ func (s *MySQLStore) AddEvent(e *Event) error {
 	}
 
 	return tx.Commit()
+}
+
+func (s *MySQLStore) SearchEventByTimeRange(o *SearchEventOptions) (*SearchEventResult, error) {
+	selectQuery := `SELECT e.id, e.number, e.agency_id, e.type_code, e.created_time, e.dispatch_time, e.response_code `
+	whereQuery := `
+FROM events e
+WHERE e.agency_id = ?
+	AND e.created_time >= ?
+	AND e.created_time <= ?
+`
+	offsetQuery := buildOffsetQuery(o.PagingOpts)
+
+	args := []interface{}{o.AgentcyID, o.From, o.To}
+
+	// count result
+	countQuery := "SELECT COUNT(1) " + whereQuery + offsetQuery
+	count, err := doCountQuery(s.db, countQuery, args)
+	if err != nil {
+		return nil, err
+	}
+
+	// Query with data
+	dataQueryStr := selectQuery + whereQuery + offsetQuery
+	rows, err := s.db.Query(dataQueryStr, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	pp.Println("Query:", dataQueryStr, " args:", args)
+
+	// Fetch events from query result
+	events := make([]*Event, 0, count)
+	for rows.Next() {
+		e := &Event{}
+		err := rows.Scan(&e.ID, &e.Number, &e.AgencyID, &e.TypeCode, &e.CreatedTime, &e.DispatchTime, &e.ResponderCode)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, e)
+	}
+
+	return &SearchEventResult{
+		Events: events,
+		PageInfo: PagingInfo{
+			Total: uint64(count),
+			Offet: o.PagingOpts.Offset,
+		},
+	}, nil
+}
+
+func doCountQuery(db *sql.DB, query string, args []interface{}) (int64, error) {
+	row := db.QueryRow(query, args...)
+	if row.Err() != nil {
+		return 0, row.Err()
+	}
+	var count int64
+	row.Scan(&count)
+	return count, nil
+}
+
+func buildOffsetQuery(o *PagingOptions) string {
+	return fmt.Sprintf(`
+LIMIT %d
+OFFSET %d`, o.ItemsPerPage, o.Offset)
 }

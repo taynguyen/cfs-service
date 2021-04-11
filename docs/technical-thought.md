@@ -45,6 +45,9 @@ With new release, both is improved, and having good performance
 Both is good, Postgrest is better for writing large data, MySQL is better or reading large data. I also have more experience with MySQL. I think we go with MySQL
 => MySQL
 
+## Model:
+ - Would designed this as separated service with user or agency. That would reduce the complexity of the service. And it's only for the events, don't need to care about user, permission, or agency management.
+
 ## Storing datetime
  - Storing as type datetime or UNIX: prefer UNIX to use the supported datetime function in SQL, make our query life easier.
  - Store as UTC, NO local datetime stored

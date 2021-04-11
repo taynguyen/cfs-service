@@ -17,17 +17,6 @@ func init() {
 }
 
 func main() {
-	// 	var cmdEcho = &cobra.Command{
-	// 		Use:   "echo [string to echo]",
-	// 		Short: "Echo anything to the screen",
-	// 		Long: `echo is for echoing anything back.
-	// Echo works a lot like print, except it has a child command.`,
-	// 		Args: cobra.MinimumNArgs(1),
-	// 		Run: func(cmd *cobra.Command, args []string) {
-	// 			fmt.Println("Echo: " + strings.Join(args, " "))
-	// 		},
-	// 	}
-
 	config := &cfsservice.RuntimeConfig{}
 
 	var rootCmd = &cobra.Command{
@@ -50,6 +39,9 @@ func main() {
 			}
 		},
 	}
+
+	// TODO: Add sub command as cli tool.
+	//   + Migrate down (migrate up is automatically when start app)
 
 	rootCmd.Flags().Uint64Var(&config.Port, "port", 8080, "Port")
 	rootCmd.Flags().StringVar(&config.DBConnectionString, "db-conn", os.Getenv("DB_CONNECTION_STRING"), "DB-Connection string")

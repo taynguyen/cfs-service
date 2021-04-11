@@ -10,7 +10,7 @@ import (
 
 // Define models that used by the handler
 type Event struct {
-	ID            string `json:"event_id" validate:"required"`
+	ID            string `json:"event_id"`
 	AgencyID      string `json:"agency_id" validate:"required"`
 	Number        string `json:"event_number" validate:"required"`
 	TypeCode      string `json:"event_type_code" validate:"required"`
@@ -45,6 +45,36 @@ func (e *Event) ToStoreModel() (*store.Event, error) {
 	}
 
 	return m, nil
+}
+
+type GetEventsResponse struct {
+	Events     []*Event
+	PagingInfo store.PagingInfo
+}
+
+func GetEventResponseFromStoreResponse(r *store.SearchEventResult) *GetEventsResponse {
+	m := &GetEventsResponse{
+		Events:     make([]*Event, len(r.Events)),
+		PagingInfo: r.PageInfo,
+	}
+
+	for i := 0; i < len(r.Events); i++ {
+		m.Events = append(m.Events, EventFromStoreModel(r.Events[i]))
+	}
+
+	return m
+}
+
+func EventFromStoreModel(m *store.Event) *Event {
+	return &Event{
+		ID:            m.ID,
+		AgencyID:      m.AgencyID,
+		Number:        m.Number,
+		TypeCode:      m.TypeCode,
+		ResponderCode: m.ResponderCode,
+		CreatedTime:   utils.FormatTimeToLongTring(m.CreatedTime),
+		DispatchTime:  utils.FormatTimeToLongTring(m.DispatchTime),
+	}
 }
 
 func (e *Event) Validate() []*ValidationErrorResponse {
