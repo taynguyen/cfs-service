@@ -9,7 +9,6 @@ import (
 
 	"github.com/Boostport/migration"
 	"github.com/Boostport/migration/driver/mysql"
-	"github.com/k0kubun/pp"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -100,8 +99,6 @@ WHERE e.agency_id = ?
 	if err != nil {
 		return nil, err
 	}
-
-	pp.Println("Query:", dataQueryStr, " args:", args)
 
 	// Fetch events from query result
 	events := make([]*Event, 0, count)

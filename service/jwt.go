@@ -10,19 +10,12 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
-	cfsservice "gitlab.com/cfs-service"
 	"gitlab.com/cfs-service/utils"
 )
 
 type TokenMetadata struct {
-	UserID int64
+	AgencyID string
 
-	// Email should have value when token type is Reset Password
-	Email string // Optional
-
-	UserIP    string
-	StatusID  int32
-	TypeID    int16
 	CreatedAt time.Time
 	ExpiredAt time.Time
 }
@@ -45,8 +38,8 @@ var (
 	publicKey *rsa.PublicKey
 )
 
-func InitializeJWT(cf *cfsservice.RuntimeConfig) error {
-	verifyBytes, err := ioutil.ReadFile(cf.JWTPublicKeyPath)
+func InitializeKeyService(publicKeyPath string) error {
+	verifyBytes, err := ioutil.ReadFile(publicKeyPath)
 	if err != nil {
 		return errors.Wrap(err, "Read public key file failed. ")
 	}
@@ -96,22 +89,7 @@ func ExtractTokenMetadata(tokenString string) (*TokenMetadata, error) {
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		email := fmt.Sprintf("%s", claims["email"])
-
-		userid, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["userid"]), 10, 64)
-		if err != nil {
-			return nil, err
-		}
-
-		stt, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["stt"]), 10, 32)
-		if err != nil {
-			return nil, err
-		}
-
-		tokenType, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["type"]), 10, 16)
-		if err != nil {
-			return nil, err
-		}
+		agencyID := fmt.Sprintf("%s", claims["a_id"])
 
 		createdAtMls, err := strconv.ParseInt(fmt.Sprintf("%.f", claims["c"]), 10, 64)
 		if err != nil {
@@ -124,11 +102,7 @@ func ExtractTokenMetadata(tokenString string) (*TokenMetadata, error) {
 		}
 
 		return &TokenMetadata{
-			UserID:    userid,
-			Email:     email,
-			StatusID:  int32(stt),
-			TypeID:    int16(tokenType),
-			UserIP:    fmt.Sprintf("%v", claims["ip"]),
+			AgencyID:  agencyID,
 			CreatedAt: utils.TimeFromUnixMillis(createdAtMls),
 			ExpiredAt: utils.TimeFromUnixMillis(expiredAtMls),
 		}, nil

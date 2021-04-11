@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/k0kubun/pp"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	cfsservice "gitlab.com/cfs-service"
 	"gitlab.com/cfs-service/server"
+	"gitlab.com/cfs-service/service"
 	"gitlab.com/cfs-service/store"
 )
 
@@ -22,7 +22,10 @@ func main() {
 	var rootCmd = &cobra.Command{
 		Use: "app",
 		Run: func(cmd *cobra.Command, args []string) {
-			pp.Println("config:", config) // TODO: Remove this
+			// Init key service
+			if err := service.InitializeKeyService(config.JWTPublicKeyPath); err != nil {
+				logrus.Fatal("Missing public key file", err)
+			}
 
 			// init store
 			var dbStore store.IStore
@@ -45,6 +48,7 @@ func main() {
 
 	rootCmd.Flags().Uint64Var(&config.Port, "port", 8080, "Port")
 	rootCmd.Flags().StringVar(&config.DBConnectionString, "db-conn", os.Getenv("DB_CONNECTION_STRING"), "DB-Connection string")
+	rootCmd.Flags().StringVar(&config.JWTPublicKeyPath, "public-key-path", os.Getenv("PUBLIC_KEY_PATH"), "Public key file path, used to validate JWT token")
 
 	// rootCmd.AddCommand(cmdEcho)
 	rootCmd.Execute()
