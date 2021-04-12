@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,6 +12,8 @@ import (
 	"gitlab.com/cfs-service/store"
 	"gitlab.com/cfs-service/utils"
 )
+
+const MaxPagingLimit = uint64(200) // TODO: Make this confirable
 
 func GetPagingParam(c *fiber.Ctx) (*store.PagingOptions, error) {
 	opts := &store.PagingOptions{}
@@ -27,12 +31,26 @@ func GetPagingParam(c *fiber.Ctx) (*store.PagingOptions, error) {
 		return nil, errors.Wrap(err, "Invalid limit")
 	}
 
+	if opts.ItemsPerPage > MaxPagingLimit {
+		return nil, errors.Wrap(err, fmt.Sprintf("Limit exceeded the maximum of %d", MaxPagingLimit))
+	}
+
 	return opts, nil
 }
 
 func GetQueryParamDate(c *fiber.Ctx, paramName string) (time.Time, error) {
 	fromText := c.Query(paramName)
 	return utils.StringToTime(fromText)
+}
+
+func GetSortParam(c *fiber.Ctx) string {
+	order := "ASC" // Default
+
+	if param := c.Query("sort"); len(param) > 0 && strings.ToLower(param) == "desc" {
+		order = "DESC"
+	}
+
+	return order
 }
 
 func GetAgencyIDFromCtx(c *fiber.Ctx) string {

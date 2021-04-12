@@ -16,6 +16,10 @@ type SearchEventOptions struct {
 	AgentcyID string
 	From, To  time.Time
 
+	// Available : ASC DESC
+	// TODO: We could make this more generic by also including field name
+	Order string
+
 	PagingOpts *PagingOptions
 }
 

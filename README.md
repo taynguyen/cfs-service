@@ -37,6 +37,6 @@ curl --request POST \
 ### Search request
 ```
 curl --request GET \
-  --url 'http://localhost:8080/api/v1/events?from=2020-11-25%2007%3A36%3A04.000&to=2020-11-25%2007%3A36%3A05.000&offset=0' \
+  --url 'http://localhost:8080/api/v1/events?from=2020-11-25%2007%3A36%3A04.000&to=2020-11-25%2007%3A36%3A05.000&offset=0&sort=desc' \
   --cookie auth-token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhX2lkIjoiNGY5Yjk5ZWItNDkwYS00ODRlLWJhZGUtMTVlMzg0MWRmZGE5IiwiYyI6MTYxODE0OTcxNjIwMiwiZXhwIjoxNjIwNzQxNzE2MjAyfQ.bry5uYJAWn1WqOhdD4KY4DRZMPTR-6q3uUlfsQnWrkmE_CTWHIM3aFHQV49ilpBKGG0ft1otF4Z-5xzIvhM52nAACd_A7sEXRy8sgq5mOEYmjBO9xW2ygL83Wd7hTJA7mN6vy8RCeb3lGLMLoMmuMFFNbeuNKhmZpqIsD0Myj93S7CUsRHVL3gysbBpSY4iySKPI4SSK5d8fMd6DRQwiZxjHHHh-VYP6c5HwbuJnGX-9YJjOOc-9SiJvAHa8FIJJxochGvOtxV3i_qlC0MVDM7AfkKb0WSQSJvmoTImsguw6_fycvOOOPeVzI6VSZK6DXXU2oZvAt2HIZkaTgeegled9u3F9Zu0vjT5sZ_SdOc8MZKO9pRa2wD2bQUKPTQverkE5NYnbiHOlfl_n22EdFbAfmjyLqdrJauAk4A2YyDhcXOUrvZEsqafH2D76ssDonjbYuCG9oqyek_0CTdw6r4ODHn_zXBoSWsgd3xG-IxPwk1bHtrtS8InECEi66H3b
 ```

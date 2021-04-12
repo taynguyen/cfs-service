@@ -62,6 +62,7 @@ func GetEvents(c *fiber.Ctx) error {
 		AgentcyID:  GetAgencyIDFromCtx(c),
 		From:       from,
 		To:         to,
+		Order:      GetSortParam(c),
 		PagingOpts: pagingOpts,
 	})
 	if err != nil {

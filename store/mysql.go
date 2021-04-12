@@ -9,6 +9,7 @@ import (
 
 	"github.com/Boostport/migration"
 	"github.com/Boostport/migration/driver/mysql"
+	"github.com/k0kubun/pp"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -82,19 +83,23 @@ WHERE e.agency_id = ?
 	AND e.created_time >= ?
 	AND e.created_time <= ?
 `
+	orderByQuery := fmt.Sprintf(`
+ORDER BY e.created_time %s
+`, o.Order)
 	offsetQuery := buildOffsetQuery(o.PagingOpts)
 
 	args := []interface{}{o.AgentcyID, o.From, o.To}
 
 	// count result
-	countQuery := "SELECT COUNT(1) " + whereQuery + offsetQuery
+	countQuery := "SELECT COUNT(1) " + whereQuery + orderByQuery + offsetQuery
+	pp.Println("Count query:", countQuery, " opts:", args)
 	count, err := doCountQuery(s.db, countQuery, args)
 	if err != nil {
 		return nil, err
 	}
 
 	// Query with data
-	dataQueryStr := selectQuery + whereQuery + offsetQuery
+	dataQueryStr := selectQuery + whereQuery + orderByQuery + offsetQuery
 	rows, err := s.db.Query(dataQueryStr, args...)
 	if err != nil {
 		return nil, err
