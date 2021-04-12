@@ -9,7 +9,6 @@ import (
 
 	"github.com/Boostport/migration"
 	"github.com/Boostport/migration/driver/mysql"
-	"github.com/k0kubun/pp"
 	"github.com/sirupsen/logrus"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -92,7 +91,6 @@ ORDER BY e.created_time %s
 
 	// count result
 	countQuery := "SELECT COUNT(1) " + whereQuery + orderByQuery + offsetQuery
-	pp.Println("Count query:", countQuery, " opts:", args)
 	count, err := doCountQuery(s.db, countQuery, args)
 	if err != nil {
 		return nil, err
